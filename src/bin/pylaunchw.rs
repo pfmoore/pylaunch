@@ -1,6 +1,6 @@
 #![windows_subsystem = "windows"]
 
-use pylaunchlib::launch;
+use pylaunch::launch;
 
 // TODO: Move all common code into a library, only extension and runtime are different.
 // QUESTION: can we capture stdout/stderr for error handling?
