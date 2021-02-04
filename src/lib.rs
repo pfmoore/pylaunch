@@ -1,5 +1,6 @@
 use std::process::Command;
 use std::path::{Path, PathBuf};
+use anyhow::{Context,Result};
 
 fn find_python(dir: &Path, default: &str) -> PathBuf {
     let locs = &[".venv/Scripts", "embedded", "python"];
@@ -24,11 +25,11 @@ fn find_lib(dir: &Path) -> PathBuf {
     dir.join("lib")
 }
 
-pub fn launch (ext: &str, cmd: &str) -> i32 {
+pub fn launch (ext: &str, cmd: &str) -> Result<i32> {
     // Result<PathBuf, std::io::Error>
-    let exe = std::env::current_exe().expect("Could not get current exe name");
+    let exe = std::env::current_exe().context("Could not get current exe name")?;
     // Option<&Path>
-    let dir = exe.parent().expect("Current exe does not have a directory");
+    let dir = exe.parent().context("Current exe does not have a directory")?;
     let interpreter = find_python(&dir, cmd);
     let script = find_script(&exe, ext);
     let lib = find_lib(&dir);
@@ -43,7 +44,8 @@ pub fn launch (ext: &str, cmd: &str) -> i32 {
         .args(std::env::args_os().skip(1))
         .env("PYTHONPATH", lib)
         .status() // std::io::Result<ExitStatus>
-        .unwrap().code() // Option<i32>
+        .context("Could not run command")?
+        .code() // Option<i32>
         .unwrap_or(1);
-    status
+    Ok(status)
 }
