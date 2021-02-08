@@ -1,6 +1,6 @@
 #![windows_subsystem = "windows"]
 
-use pylaunch::{Config, launch};
+use pylaunch::Config;
 use anyhow::Result;
 
 const CFG: Config = Config {
@@ -14,5 +14,5 @@ const CFG: Config = Config {
 // TODO: Move all common code into a library, only extension and runtime are different.
 // QUESTION: can we capture stdout/stderr for error handling?
 fn main() -> Result<()> {
-    std::process::exit(launch(&CFG)?);
+    std::process::exit(CFG.launch()?);
 }

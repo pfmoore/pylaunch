@@ -1,4 +1,4 @@
-use pylaunch::{Config, launch};
+use pylaunch::Config;
 use anyhow::Result;
 
 const CFG: Config = Config {
@@ -11,5 +11,5 @@ const CFG: Config = Config {
 
 
 fn main() -> Result<()>{
-    std::process::exit(launch(&CFG)?);
+    std::process::exit(CFG.launch()?);
 }
