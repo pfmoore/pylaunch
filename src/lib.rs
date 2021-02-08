@@ -3,30 +3,30 @@ use std::path::{Path, PathBuf};
 use anyhow::{Context,Result};
 
 pub struct Config {
-    pub exe_name: &'static str,
-    pub launcher_name: &'static str,
-    pub lib_location: &'static str,
-    pub env_locs: &'static [&'static str],
-    pub extensions: &'static [&'static str],
+    pub exe_name: String,
+    pub launcher_name: String,
+    pub lib_location: String,
+    pub env_locs: Vec<String>,
+    pub extensions: Vec<String>,
 }
 
 impl Config {
 
     fn find_python(&self, dir: &Path) -> PathBuf {
-        for loc in self.env_locs {
+        for loc in &self.env_locs {
             // TODO: Should be pythonw for GUI version
-            let interp = dir.join(loc).join(self.exe_name);
+            let interp = dir.join(loc).join(&self.exe_name);
             // println!("{:?}", interp);
             if interp.exists() {
                 return interp;
             }
         }
-        PathBuf::from(self.launcher_name)
+        PathBuf::from(&self.launcher_name)
     }
 
     fn find_script(&self, exe: &Path) -> Option<PathBuf> {
         let mut script = PathBuf::from(exe);
-        for ext in self.extensions {
+        for ext in &self.extensions {
             script.set_extension(ext);
             if script.exists() {
                 return Some(script);
@@ -36,7 +36,7 @@ impl Config {
     }
 
     fn find_lib(&self, dir: &Path) -> Option<PathBuf> {
-        let lib = dir.join(self.lib_location);
+        let lib = dir.join(&self.lib_location);
         if lib.exists() {
             Some(lib)
         } else {
