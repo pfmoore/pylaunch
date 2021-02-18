@@ -5,14 +5,15 @@ use anyhow::Result;
 
 // QUESTION: can we capture stdout/stderr for error handling?
 fn main() -> Result<()> {
-    let cfg = Config {
-        exe_name: "pythonw.exe".into(),
-        launcher_name: "pyw.exe".into(),
-        lib_location: "lib".into(),
-        env_locs: vec![".venv/Scripts".into(), "python".into(), "embedded".into()],
-        script_locs: vec!["scripts".into(), "".into()],
-        extensions: vec!["pyw".into(), "pyzw".into()],
-    };
-
+    let cfg = Config::from_file("pylaunch.cfg").unwrap_or(
+        Config {
+            exe_name: "pythonw.exe".into(),
+            launcher_name: "pyw.exe".into(),
+            lib_location: "lib".into(),
+            env_locs: vec![".venv/Scripts".into(), "python".into(), "embedded".into()],
+            script_locs: vec!["scripts".into(), "".into()],
+            extensions: vec!["pyw".into(), "pyzw".into()],
+        }
+    );
     std::process::exit(cfg.launch()?);
 }

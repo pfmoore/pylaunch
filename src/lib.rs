@@ -1,7 +1,12 @@
 use std::process::Command;
 use std::path::{Path, PathBuf};
+use std::fs;
 use anyhow::{Context,Result};
+use serde::Deserialize;
+use serde_json;
 
+
+#[derive(Deserialize)]
 pub struct Config {
     pub exe_name: String,
     pub launcher_name: String,
@@ -12,6 +17,17 @@ pub struct Config {
 }
 
 impl Config {
+
+    pub fn from_file<P: AsRef<Path>> (filename: P) -> Option<Config> {
+        let file = filename.as_ref();
+        if file.exists() {
+            let contents = fs::read_to_string(filename)
+                .expect("Something went wrong reading the file");
+            Some(serde_json::from_str(&contents).unwrap())
+        } else {
+            None
+        }
+    }
 
     fn find_python(&self, dir: &Path) -> PathBuf {
         for loc in &self.env_locs {
