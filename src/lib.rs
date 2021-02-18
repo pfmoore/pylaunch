@@ -7,6 +7,7 @@ pub struct Config {
     pub launcher_name: String,
     pub lib_location: String,
     pub env_locs: Vec<String>,
+    pub script_locs: Vec<String>,
     pub extensions: Vec<String>,
 }
 
@@ -25,11 +26,13 @@ impl Config {
     }
 
     fn find_script(&self, exe: &Path) -> Option<PathBuf> {
-        let mut script = PathBuf::from(exe);
-        for ext in &self.extensions {
-            script.set_extension(ext);
-            if script.exists() {
-                return Some(script);
+        for loc in &self.script_locs {
+            let mut script = exe.parent()?.join(loc).join(exe.file_stem()?);
+            for ext in &self.extensions {
+                script.set_extension(ext);
+                if script.exists() {
+                    return Some(script);
+                }
             }
         }
         None

@@ -10,6 +10,7 @@ fn main() -> Result<()> {
         launcher_name: "pyw.exe".into(),
         lib_location: "lib".into(),
         env_locs: vec![".venv/Scripts".into(), "python".into(), "embedded".into()],
+        script_locs: vec!["scripts".into(), "".into()],
         extensions: vec!["pyw".into(), "pyzw".into()],
     };
 
