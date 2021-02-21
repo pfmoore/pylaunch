@@ -8,7 +8,7 @@ use serde_json;
 
 #[derive(Deserialize)]
 struct UserConfig {
-    pub lib_location: Option<String>,
+    pub lib_location: Option<Vec<String>>,
     pub env_locs: Option<Vec<String>>,
     pub script_locs: Option<Vec<String>>,
 }
@@ -18,7 +18,7 @@ pub struct Config {
     pub exe_name: String,
     pub launcher_name: String,
     pub extensions: Vec<String>,
-    pub lib_location: String,
+    pub lib_location: Vec<String>,
     pub env_locs: Vec<String>,
     pub script_locs: Vec<String>,
 }
@@ -64,15 +64,6 @@ impl Config {
         None
     }
 
-    fn find_lib(&self, dir: &Path) -> Option<PathBuf> {
-        let lib = dir.join(&self.lib_location);
-        if lib.exists() {
-            Some(lib)
-        } else {
-            None
-        }
-    }
-
     pub fn launch (&self) -> Result<i32> {
         // Result<PathBuf, std::io::Error>
         let exe = std::env::current_exe().context("Could not get current exe name")?;
@@ -80,7 +71,6 @@ impl Config {
         let dir = exe.parent().context("Current exe does not have a directory")?;
         let interpreter = self.find_python(&dir);
         let script = self.find_script(&exe).unwrap();
-        let lib = self.find_lib(dir);
         /*
         println!("Hello, world, from {:?} in {:?}!", stem, dir);
         println!("Running {:?}", script);
@@ -90,8 +80,14 @@ impl Config {
         cmd.arg(script)
             /* Skip the first arg, as it's the exe name! */
             .args(std::env::args_os().skip(1));
-        if let Some(l) = lib {
-            cmd.env("PYTHONPATH", l);
+
+        let pythonpath = std::env::join_paths(
+            self.lib_location.iter()
+                .map(|d| dir.join(&d))
+                .filter(|d| d.exists())
+            ).unwrap();
+        if pythonpath.len() > 0 {
+            cmd.env("PYTHONPATH", pythonpath);
         }
         let status = cmd.status() // std::io::Result<ExitStatus>
             .context("Could not run command")?
