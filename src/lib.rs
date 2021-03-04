@@ -26,10 +26,12 @@ pub struct Config {
 impl Config {
 
     pub fn from_file<P: AsRef<Path>> (filename: P, default: Config) -> Config {
+        let exe = std::env::current_exe().expect("Could not get current exe name");
         let mut result = default;
         let file = filename.as_ref();
+        let file = exe.parent().unwrap().join(file);
         if file.exists() {
-            let contents = fs::read_to_string(filename)
+            let contents = fs::read_to_string(file)
                 .expect("Something went wrong reading the file");
             let config: UserConfig = serde_json::from_str(&contents).unwrap();
             if let Some(lib_location) = config.lib_location { result.lib_location = lib_location }
